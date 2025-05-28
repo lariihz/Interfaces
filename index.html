@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadastro de Usuário</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">SITE LARISSA EVELYN</a>
+      <div class="collapse navbar-collapse justify-content-end">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link active" href="#">Início</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-5">
+
+    <h2 class="mb-4">Formulário de Cadastro</h2>
+    <form id="cadastroForm" class="bg-white p-4 rounded shadow-sm">
+      <div class="mb-3">
+        <label for="nome" class="form-label">NOME</label>
+        <input type="text" class="form-control" id="nome" placeholder="Digite seu nome" required>
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">E-MAIL</label>
+        <input type="email" class="form-control" id="email" placeholder="Digite seu e-mail" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Adicionar</button>
+    </form>
+
+    
+    <h3 class="mt-5">TABELAS DE CADASTROS</h3>
+    <table class="table table-bordered mt-3">
+      <thead class="table-light">
+        <tr>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaBody">
+      </tbody>
+    </table>
+
+  </div>
+
+  <script>
+    const form = document.getElementById('cadastroForm');
+    const tabela = document.getElementById('tabelaBody');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault(); 
+
+      const nome = document.getElementById('nome').value;
+      const email = document.getElementById('email').value;
+
+      const linha = document.createElement('tr');
+
+      linha.innerHTML = `
+        <td>${nome}</td>
+        <td>${email}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="this.parentElement.parentElement.remove()">Remover</button></td>
+      `;
+
+      tabela.appendChild(linha);
+
+      form.reset(); 
+    });
+  </script>
+
+</body>
+</html>
