@@ -1,0 +1,200 @@
+<!--CODIGO TOTALMENTE COMENTADO PARA FACILITAÇÃO DO MEU ENTEDIMENTO POIS NA MINHA CABEÇA ASSIM É MAIS FACIL-->
+<!DOCTYPE html>
+<!-- Indica que este documento é um HTML5 -->
+<html lang="pt-br">
+<!-- Define o idioma da página, BRASIL -->
+
+<head>
+  <meta charset="UTF-8">
+  <!-- Define a codificação de caracteres como UTF-8, PARA ACEITAR CARACTERES ESPECIAIS -->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Faz a página se adaptar a QUALQUER TELA -->
+
+  <title>Cadastro de Usuário</title>
+  <!-- TITULO DO NAVEGADOR -->
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Importa o CSS do Bootstrap (framework para deixar seu site bonito) -->
+</head>
+
+<body class="bg-light">
+<!-- bg-light = classe do Bootstrap que dá fundo claro -->
+
+  <!-- NAVBAR: Menu de navegação superior -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- navbar = define que é uma barra de navegação -->
+    <!-- navbar-expand-lg = torna a navbar expansível em telas grandes -->
+    <!-- navbar-dark = deixa os textos brancos -->
+    <!-- bg-dark = fundo escuro -->
+
+    <div class="container-fluid">
+      <!-- container-fluid = largura 100% do conteúdo -->
+
+      <a class="navbar-brand" href="#">MEU SITE</a>
+      <!-- navbar-brand = define a logo ou nome do site -->
+
+      <div class="collapse navbar-collapse justify-content-end">
+        <!-- collapse navbar-collapse = permite que a navbar funcione no cll -->
+        <!-- justify-content-end = alinha pra direita -->
+
+        <ul class="navbar-nav">
+          <!-- navbar-nav = lista de itens -->
+
+          <li class="nav-item">
+            <!-- nav-item = item individual -->
+
+            <a class="nav-link active" href="#">Início</a>
+            <!-- nav-link = estilo do link do menu -->
+            <!-- active = indica que está na página atual -->
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div class="container mt-5">
+    <!-- container : centraliza e limita a largura do que ta na tela -->
+    <!-- mt-5 = margem no topo (margin-top) -->
+
+    <h2 class="mb-4">Formulário de Cadastro</h2>
+    <!-- h2 = título de nível 2 ou seja segundo titulo -->
+    <!-- mb-4 = margin-bottom (espaco debaixo do titilo) -->
+
+    <!-- FORMULÁRIO -->
+    <form id="cadastroForm" class="bg-white p-4 rounded shadow-sm">
+      <!-- id="cadastroForm" = identificador para usar com JavaScript -->
+      <!-- bg-white = fundo branco -->
+      <!-- p-4 = padding (espaçamento interno) -->
+      <!-- rounded = cantos redondo -->
+      <!-- shadow-sm = pqn sombra -->
+
+      <div class="mb-3">
+        <!-- mb-3 = margem inferior para o espaço entre os campos -->
+
+        <label for="nome" class="form-label">NOME</label>
+        <!-- label = rptulo do campo -->
+        <!-- for="nome" = associa o label ao input com id="nome" -->
+        <!-- class="form-label" = estilo do Bootstrap -->
+
+        <input type="text" class="form-control" id="nome" placeholder="Digite seu nome" required>
+        <!-- input = campo de digitação -->
+        <!-- type="text" = texto comum -->
+        <!-- class="form-control" = aplica estilos bonitos com Bootstrap -->
+        <!-- id="nome" = serve para o label e JavaScript -->
+        <!-- placeholder = texto que aparece dentro da caixa como dica -->
+        <!-- required = obrigatório preencher -->
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">E-MAIL</label>
+        <input type="email" class="form-control" id="email" placeholder="Digite seu e-mail" required>
+        <!-- type="email" = valida se tem @ e formato de e-mail -->
+      </div>
+
+      <button type="submit" class="btn btn-primary">Adicionar</button>
+      <!-- botão de enviar o formulário -->
+      <!-- class="btn btn-primary" = botão azul padrão do Bootstrap -->
+    </form>
+
+    <!-- ÁREA PARA MENSAGENS DINÂMICAS -->
+    <div id="mensagem" class="mt-4 text-center"></div>
+    <!-- Aqui o JS coloca msg como "Cadastrado com sucesso!" -->
+    <!-- text-center = centraliza o texto -->
+    <!-- mt-4 = espaço no topo -->
+
+    <!-- TÍTULO DA TABELA -->
+    <h3 class="mt-5">TABELAS DE CADASTROS</h3>
+    <!-- h3 = ttl menor que o h2 -->
+    <!-- mt-5 = margem superior -->
+
+    <!-- TABELA DE CADASTRADOS -->
+    <table class="table table-bordered mt-3">
+      <!-- table = tabela HTML -->
+      <!-- table-bordered = adiciona bordas nas células -->
+      <!-- mt-3 = margem superior -->
+
+      <thead class="table-light">
+        <!-- thead = cabeçalho da tabela -->
+        <!-- table-light = fundo claro no cabeçalho -->
+
+        <tr>
+          <!-- tr = table row (linha da tabela) -->
+
+          <th>Id</th>
+          <!-- th = table header (cabeçalho da coluna) -->
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+
+      <tbody id="tabelaBody">
+        <!-- tbody = corpo da tabela onde entram os dados -->
+        <!-- id="tabelaBody" = onde o JS vai add as linhas -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Importação dos scripts JS do Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- SCRIPT PERSONALIZADO EM JAVASCRIPT -->
+  <script>
+    // Pega os elementos da página
+    const form = document.getElementById('cadastroForm');
+    const tabela = document.getElementById('tabelaBody');
+    const divMensagem = document.getElementById('mensagem');
+    let contadorId = 1; // contador de forma crescentes dos id's
+
+    // Quando enviar o formulário
+    form.addEventListener('submit', function(e) {
+      e.preventDefault(); // impede o recarregamento da página
+
+      // Captura os valores q eu digitei
+      const nome = document.getElementById('nome').value;
+      const email = document.getElementById('email').value;
+
+      // Cria nova linha da tabela
+      const linha = document.createElement('tr');
+
+      linha.innerHTML = `
+        <td>${contadorId}</td>
+        <td>${nome}</td>
+        <td>${email}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="removerLinha(this)">Remover</button></td>
+      `;
+
+      // Adiciona na tabelak
+      tabela.appendChild(linha);
+
+      contadorId++; // incrementa o ID
+      form.reset(); // limpa o formulário qmd deu add
+      mostrarMensagem('Cadastrado com sucesso!', 'success'); // mostra msg verde que deu bom
+    });
+
+    // Função pra remover linha e mostrar msg
+    function removerLinha(botao) {
+      const linha = botao.parentElement.parentElement;
+      linha.remove();
+      mostrarMensagem('Deletado com sucesso!', 'danger'); // vermelho sinalizar que deu ruim
+    }
+
+    // Exibe mensagens no meio da tela
+    function mostrarMensagem(texto, tipo) {
+      divMensagem.innerHTML = `
+        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+          ${texto}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      `;
+
+      // Remove a mensagem depois de 3 segundos apos mostrar
+      setTimeout(() => {
+        divMensagem.innerHTML = '';
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

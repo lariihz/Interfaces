@@ -7,7 +7,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
-
+<!--cabeçalho-->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">MEU SITE</a>
@@ -20,9 +20,10 @@
       </div>
     </div>
   </nav>
-
   <div class="container mt-5">
+  <div id="mensagem" class="mt-4"></div>
 
+<!--tabela de cadastros -->
     <h2 class="mb-4">Formulário de Cadastro</h2>
     <form id="cadastroForm" class="bg-white p-4 rounded shadow-sm">
       <div class="mb-3">
@@ -36,11 +37,11 @@
       <button type="submit" class="btn btn-primary">Adicionar</button>
     </form>
 
-    
     <h3 class="mt-5">TABELAS DE CADASTROS</h3>
     <table class="table table-bordered mt-3">
       <thead class="table-light">
         <tr>
+          <th>Id</th>
           <th>Nome</th>
           <th>E-mail</th>
           <th>Ação</th>
@@ -51,30 +52,52 @@
     </table>
 
   </div>
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     const form = document.getElementById('cadastroForm');
     const tabela = document.getElementById('tabelaBody');
+    const divMensagem = document.getElementById('mensagem');
+    let contadorId = 1;
 
     form.addEventListener('submit', function(e) {
       e.preventDefault(); 
 
       const nome = document.getElementById('nome').value;
       const email = document.getElementById('email').value;
-
       const linha = document.createElement('tr');
 
       linha.innerHTML = `
-        <td>${nome}</td>
-        <td>${email}</td>
-        <td><button class="btn btn-danger btn-sm" onclick="this.parentElement.parentElement.remove()">Remover</button></td>
-      `;
+  <td>${contadorId}</td>
+  <td>${nome}</td>
+  <td>${email}</td>
+  <td><button class="btn btn-danger btn-sm" onclick="removerLinha(this)">Remover</button></td>
+`;
 
+      
       tabela.appendChild(linha);
+      contadorId++;
+      form.reset();
+       mostrarMensagem('Cadastrado com sucesso!', 'success');
+  });
 
-      form.reset(); 
-    });
-  </script>
+  function removerLinha(botao) {
+  const linha = botao.parentElement.parentElement;
+  linha.remove();
+  mostrarMensagem('Deletado com sucesso!', 'danger');
+}
 
+function mostrarMensagem(texto, tipo) {
+  divMensagem.innerHTML = `
+    <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+      ${texto}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  `;
+
+  setTimeout(() => {
+    divMensagem.innerHTML = '';
+  }, 3000); // some dps de 3 segundos
+}
+</script>
 </body>
 </html>

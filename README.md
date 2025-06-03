@@ -2,6 +2,7 @@
 
 Este repositório contém pastas com interfaces web estáticas, desenvolvidas com HTML, CSS e JavaScript puro.
 
+<<<<<<< HEAD
 ## 📁 Estrutura
 - Cada pasta representa uma interface diferente
 - Os arquivos podem incluir `.html`, `.css` e `.js`
@@ -14,3 +15,15 @@ Abra os arquivos `.html` no navegador para visualizar as interfaces.
 ---
 
  ✨
+=======
+## Estrutura
+- Cada pasta representa uma interface diferente
+- Pode conter arquivos `.html`, `.css` e `.js` conforme o necessário
+
+## Como visualizar
+Abra os arquivos `.html` no navegador.
+
+---
+
+✨
+>>>>>>> d440f23 (Interface editadas e  comentadas)
