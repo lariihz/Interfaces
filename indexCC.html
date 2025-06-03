@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<!-- Define que o documento está usando HTML5 -->
+<html lang="pt-br">
+<!-- Define o idioma principal da página como português do Brasil -->
+
+<head>
+  <meta charset="UTF-8">
+  <!-- Define o conjunto de caracteres como UTF-8, que suporta acentuação e caracteres especiais -->
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Faz com que a página se adapte corretamente a dispositivos móveis -->
+
+  <title>Cadastro de Usuário</title>
+  <!-- Define o título da aba do navegador -->
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Importa o CSS do Bootstrap, um framework que ajuda no design responsivo -->
+</head>
+
+<body class="bg-blueligt">
+<!-- Aplica uma classe (embora "bg-blueligt" esteja escrito errado, o correto seria "bg-light" ou "bg-primary", por exemplo) -->
+
+  <!-- ====== Cabeçalho / Barra de navegação ====== -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Cria uma barra de navegação escura que se adapta em telas pequenas -->
+
+    
+    <div class="container-fluid">
+      <!-- Container que ocupa toda a largura disponível -->
+
+      <a class="navbar-brand" href="#">MEU SITE</a>
+      <!-- Marca ou logotipo da barra de navegação -->
+
+      <div class="collapse navbar-collapse justify-content-end">
+        <!-- Colapsa os itens da barra em telas pequenas e alinha à direita -->
+
+        <ul class="navbar-nav">
+          <!-- Lista de itens da navegação -->
+
+          <li class="nav-item">
+            <!-- Um item da lista de navegação -->
+            <a class="nav-link active" href="#">PÁGINA INICIAL</a>
+            <!-- Link da navegação -->
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ====== Container principal ====== -->
+  <div class="container mt-5">
+    <!-- Container central com margem superior de 5 unidades -->
+    
+
+    <div id="mensagem" class="mt-4"></div>
+    <!-- Div para exibir mensagens de sucesso/erro dinamicamente -->
+
+    <!-- ====== Formulário de Cadastro ====== -->
+    <h2 class="mb-4">Formulário de Cadastro</h2>
+    <!-- Título do formulário -->
+
+    <form id="cadastroForm" class="bg-white p-4 rounded shadow-sm">
+      <!-- Formulário com fundo branco, padding, bordas arredondadas e sombra -->
+
+      <div class="mb-3">
+        <!-- Margem inferior no campo -->
+
+        <label for="nome" class="form-label">NOME</label>
+        <!-- Rótulo do campo de nome -->
+
+        <input type="text" class="form-control" id="nome" placeholder="Digite seu nome" required>
+        <!-- Campo de texto com estilo Bootstrap -->
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">E-MAIL</label>
+        <!-- Rótulo do campo de e-mail -->
+        <input type="email" class="form-control" id="email" placeholder="Digite seu e-mail" required>
+        <!-- Campo de entrada de e-mail com validação -->
+      </div>
+
+      <button type="submit" class="btn btn-primary">Adicionar</button>
+      <!-- Botão de envio do formulário -->
+    </form>
+
+    <!-- ====== Tabela de Cadastros ====== -->
+    <h3 class="mt-5">TABELAS DE CADASTROS</h3>
+    <!-- Título da tabela -->
+
+    <table class="table table-bordered mt-3">
+      <!-- Tabela com bordas e margem superior -->
+
+      <thead class="table-light">
+        <!-- Cabeçalho da tabela com fundo claro -->
+        <tr>
+          <th>Id</th>
+            <!-- Coluna para ID -->
+          <th>Nome</th>
+            <!-- Coluna para Nome -->
+          <th>E-mail</th>
+            <!-- Coluna para E-mail -->
+          <th>Ação</th>
+            <!-- Coluna para Ação (botão de remover) -->
+        </tr>
+      </thead>
+      <tbody id="tabelaBody">
+        <!-- Corpo da tabela que será preenchido via JavaScript -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ====== Scripts ====== -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Script do Bootstrap para funcionalidade de componentes como alertas -->
+
+  <script>
+    // Pegando elementos do HTML
+    const form = document.getElementById('cadastroForm');
+    // Obtém o formulário pelo ID
+    // Obtém o corpo da tabela onde as linhas serão adicionadas 
+    const tabela = document.getElementById('tabelaBody');
+    // Obtém a div onde as mensagens serão exibidas
+    const divMensagem = document.getElementById('mensagem');
+    let contadorId = 1; // Contador de ID para cada linha da tabela
+
+    // Evento ao enviar o formulário
+    form.addEventListener('submit', function(e) {
+      e.preventDefault(); // Impede o recarregamento da página
+
+      const nome = document.getElementById('nome').value;
+        // Obtém o valor do campo de nome
+      const email = document.getElementById('email').value;
+        // Obtém o valor do campo de e-mail
+      // Cria uma nova linha na tabela
+      const linha = document.createElement('tr'); // Cria uma nova linha da tabela
+
+      // Define o conteúdo da linha com os dados
+      linha.innerHTML = `
+        <td>${contadorId}</td>
+        <td>${nome}</td>
+        <td>${email}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="removerLinha(this)">Remover</button></td>
+      `;
+
+      tabela.appendChild(linha); // Adiciona a linha na tabela
+      contadorId++; // Incrementa o ID
+      form.reset(); // Limpa os campos do formulário
+      mostrarMensagem('Cadastrado com sucesso!', 'success'); // Mostra mensagem
+    });
+
+    // Função para remover linha da tabela
+    function removerLinha(botao) {
+      const linha = botao.parentElement.parentElement;
+      linha.remove(); // Remove a linha
+      mostrarMensagem('Deletado com sucesso!', 'danger'); // Mostra mensagem
+    }
+
+    // Função para mostrar mensagens dinâmicas
+    function mostrarMensagem(texto, tipo) {
+      divMensagem.innerHTML = `
+        <!-- Cria uma mensagem de alerta com o texto e tipo especificados -->
+        <div class="alert alert-${tipo} alert-dismissible fade show text-center" role="alert">
+          ${texto}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      `;
+
+      // Remove a mensagem após 5 segundos
+      setTimeout(() => {
+        divMensagem.innerHTML = '';
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
