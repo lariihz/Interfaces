@@ -2,7 +2,10 @@ document.addEventListener("DOMContentLoaded", () => {
   buscarAlunos();
 
   document.getElementById("formCadastro").addEventListener("submit", cadastrar);
+  document.getElementById("cancelarEdicao").addEventListener("click", cancelarEdicao); // novo evento
 });
+
+let alunoEditandoId = null;
 
 function buscarAlunos() {
   fetch("http://localhost:8080/api/alunos")
@@ -26,6 +29,7 @@ function atualizarTabela(alunos) {
       <td class="px-4 py-2">${aluno.nome}</td>
       <td class="px-4 py-2">${aluno.email}</td>
       <td class="px-4 py-2">
+        <button class="bg-yellow-400 text-white px-2 py-1 rounded mr-2" onclick='editarAluno(${JSON.stringify(aluno)})'>Editar</button>
         <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="remover(${aluno.id}, this)">Remover</button>
       </td>
     `;
@@ -33,11 +37,22 @@ function atualizarTabela(alunos) {
   });
 }
 
+function editarAluno(aluno) {
+  document.getElementById("nome").value = aluno.nome;
+  document.getElementById("email").value = aluno.email;
+
+  alunoEditandoId = aluno.id;
+
+  document.querySelector("button[type='submit']").textContent = "Salvar";
+  document.getElementById("cancelarEdicao").classList.remove("hidden"); // mostra botão cancelar
+}
+
 function cadastrar(event) {
   event.preventDefault();
 
   const nome = document.getElementById("nome").value.trim();
   const email = document.getElementById("email").value.trim();
+  const formCadastro = document.getElementById("formCadastro");
 
   if (!nome || !email) {
     Swal.fire("Erro", "Preencha todos os campos.", "error");
@@ -46,23 +61,42 @@ function cadastrar(event) {
 
   const aluno = { nome, email };
 
-  fetch("http://localhost:8080/api/alunos", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(aluno),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      buscarAlunos(); // atualiza a lista
-      document.getElementById("formCadastro").reset();
-      Swal.fire("Sucesso", "Aluno cadastrado!", "success");
+  if (alunoEditandoId !== null) {
+    fetch(`http://localhost:8080/api/alunos/${alunoEditandoId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(aluno),
     })
-    .catch((error) => {
-      console.error("Erro ao cadastrar aluno:", error);
-      Swal.fire("Erro", "Não foi possível cadastrar.", "error");
-    });
+      .then((res) => res.json())
+      .then(() => {
+        buscarAlunos();
+        formCadastro.reset();
+        alunoEditandoId = null;
+        document.querySelector("button[type='submit']").textContent = "Adicionar";
+        document.getElementById("cancelarEdicao").classList.add("hidden");
+        Swal.fire("Sucesso", "Aluno atualizado!", "success");
+      })
+      .catch((error) => {
+        console.error("Erro ao atualizar aluno:", error);
+        Swal.fire("Erro", "Falha ao atualizar.", "error");
+      });
+  } else {
+    fetch("http://localhost:8080/api/alunos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(aluno),
+    })
+      .then((res) => res.json())
+      .then(() => {
+        buscarAlunos();
+        formCadastro.reset();
+        Swal.fire("Sucesso", "Aluno cadastrado!", "success");
+      })
+      .catch((error) => {
+        console.error("Erro ao cadastrar aluno:", error);
+        Swal.fire("Erro", "Não foi possível cadastrar.", "error");
+      });
+  }
 }
 
 function remover(id, botao) {
@@ -75,9 +109,7 @@ function remover(id, botao) {
     cancelButtonText: "Cancelar",
   }).then((result) => {
     if (result.isConfirmed) {
-      fetch(`http://localhost:8080/api/alunos/${id}`, {
-        method: "DELETE",
-      })
+      fetch(`http://localhost:8080/api/alunos/${id}`, { method: "DELETE" })
         .then(() => {
           const linha = botao.closest("tr");
           linha.remove();
@@ -89,4 +121,13 @@ function remover(id, botao) {
         });
     }
   });
+}
+
+// Nova função: cancelar edição
+function cancelarEdicao() {
+  const formCadastro = document.getElementById("formCadastro");
+  formCadastro.reset();
+  alunoEditandoId = null;
+  document.querySelector("button[type='submit']").textContent = "Adicionar";
+  document.getElementById("cancelarEdicao").classList.add("hidden");
 }
