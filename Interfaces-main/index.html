@@ -32,8 +32,15 @@
         <label for="email" class="block text-gray-700 font-bold mb-2">E-mail</label>
         <input type="email" id="email" class="w-full px-3 py-2 border rounded" required />
       </div>
+
       <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
         Adicionar
+      </button>
+
+      <!-- Botão Cancelar Edição -->
+      <button type="button" id="cancelarEdicao"
+        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 ml-2 hidden">
+        Cancelar Edição
       </button>
     </form>
 
@@ -55,6 +62,137 @@
   </div>
 
   <!-- Script -->
-  <script src="index.js"></script>
+  <script>
+    let alunoEditandoId = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      buscarAlunos();
+
+      document.getElementById("formCadastro").addEventListener("submit", cadastrar);
+      document.getElementById("cancelarEdicao").addEventListener("click", cancelarEdicao);
+    });
+
+    function buscarAlunos() {
+      fetch("http://localhost:8080/api/alunos")
+        .then((res) => res.json())
+        .then((alunos) => atualizarTabela(alunos))
+        .catch((err) => console.error("Erro ao buscar alunos:", err));
+    }
+
+    function atualizarTabela(alunos) {
+      const tabela = document.getElementById("tabelaCorpo");
+      tabela.innerHTML = "";
+
+      alunos.forEach((aluno) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="px-4 py-2">${aluno.id}</td>
+          <td class="px-4 py-2">${aluno.nome}</td>
+          <td class="px-4 py-2">${aluno.email}</td>
+          <td class="px-4 py-2">
+            <button class="bg-yellow-400 text-white px-2 py-1 rounded mr-2" onclick='editarAluno(${JSON.stringify(aluno)})'>Editar</button>
+            <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="remover(${aluno.id}, this)">Remover</button>
+          </td>
+        `;
+        tabela.appendChild(tr);
+      });
+    }
+
+    function editarAluno(aluno) {
+      document.getElementById("nome").value = aluno.nome;
+      document.getElementById("email").value = aluno.email;
+
+      alunoEditandoId = aluno.id;
+
+      document.querySelector("button[type='submit']").textContent = "Salvar";
+      document.getElementById("cancelarEdicao").classList.remove("hidden");
+    }
+
+    function cadastrar(event) {
+      event.preventDefault();
+
+      const nome = document.getElementById("nome").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const formCadastro = document.getElementById("formCadastro");
+
+      if (!nome || !email) {
+        Swal.fire("Erro", "Preencha todos os campos.", "error");
+        return;
+      }
+
+      const aluno = { nome, email };
+
+      if (alunoEditandoId !== null) {
+        // Atualizar aluno
+        fetch(`http://localhost:8080/api/alunos/${alunoEditandoId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(aluno),
+        })
+          .then((res) => res.json())
+          .then(() => {
+            buscarAlunos();
+            formCadastro.reset();
+            alunoEditandoId = null;
+            document.querySelector("button[type='submit']").textContent = "Adicionar";
+            document.getElementById("cancelarEdicao").classList.add("hidden");
+            Swal.fire("Sucesso", "Aluno atualizado!", "success");
+          })
+          .catch((err) => {
+            console.error("Erro ao atualizar:", err);
+            Swal.fire("Erro", "Não foi possível atualizar.", "error");
+          });
+      } else {
+        // Cadastrar novo aluno
+        fetch("http://localhost:8080/api/alunos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(aluno),
+        })
+          .then((res) => res.json())
+          .then(() => {
+            buscarAlunos();
+            formCadastro.reset();
+            Swal.fire("Sucesso", "Aluno cadastrado!", "success");
+          })
+          .catch((err) => {
+            console.error("Erro ao cadastrar:", err);
+            Swal.fire("Erro", "Não foi possível cadastrar.", "error");
+          });
+      }
+    }
+
+    function remover(id, botao) {
+      Swal.fire({
+        title: "Tem certeza?",
+        text: "Essa ação não pode ser desfeita!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sim, remover!",
+        cancelButtonText: "Cancelar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(`http://localhost:8080/api/alunos/${id}`, {
+            method: "DELETE",
+          })
+            .then(() => {
+              botao.closest("tr").remove();
+              Swal.fire("Removido!", "Aluno excluído com sucesso.", "success");
+            })
+            .catch((err) => {
+              console.error("Erro ao remover:", err);
+              Swal.fire("Erro", "Não foi possível remover.", "error");
+            });
+        }
+      });
+    }
+
+    function cancelarEdicao() {
+      document.getElementById("formCadastro").reset();
+      alunoEditandoId = null;
+      document.querySelector("button[type='submit']").textContent = "Adicionar";
+      document.getElementById("cancelarEdicao").classList.add("hidden");
+    }
+  </script>
 </body>
 </html>
