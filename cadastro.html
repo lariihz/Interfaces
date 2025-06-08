@@ -1,107 +1,137 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
   <title>Cadastro</title>
-  <script src="script.js" defer></script>
   <style>
     body {
-      background: #eef2f7;
-      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      padding-top: 40px;
     }
-
-    .container {
+    form {
       background: white;
-      padding: 30px 40px;
+      padding: 30px;
       border-radius: 10px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-      width: 400px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 320px;
     }
-
-    h1 {
-      text-align: center;
+    h2 {
       margin-bottom: 20px;
+      text-align: center;
       color: #333;
     }
-
-    label {
-      display: block;
-      margin-top: 12px;
-      font-weight: 600;
-      color: #555;
-    }
-
-    input {
+    input, button {
       width: 100%;
       padding: 10px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
+      margin-bottom: 12px;
       border-radius: 6px;
-      box-sizing: border-box;
+      border: 1px solid #ccc;
+      font-size: 14px;
     }
-
     button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 12px;
-      background-color: #007BFF;
+      background-color: #28a745;
       color: white;
       border: none;
-      border-radius: 6px;
-      font-weight: bold;
       cursor: pointer;
     }
-
     button:hover {
-      background-color: #0056b3;
+      background-color: #218838;
     }
-
-    #erro {
-      margin-top: 10px;
+    .erro {
       color: red;
-      text-align: center;
-      font-size: 14px;
+      font-size: 12px;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Cadastro</h1>
-    <form>
-      <label>Nome:</label>
-      <input type="text" name="nome" required>
+  <form id="cadastroForm">
+    <h2>Cadastro</h2>
+    <input type="text" id="nome" placeholder="Nome" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="senha" placeholder="Senha" required>
+    <input type="text" id="cep" placeholder="CEP" required maxlength="8">
+    <div class="erro" id="erroCep"></div>
+    <input type="text" id="endereco" placeholder="Endereço" required>
+    <input type="text" id="numero" placeholder="Número" required>
+    <input type="text" id="bairro" placeholder="Bairro" required>
+    <input type="text" id="cidade" placeholder="Cidade" required>
+    <input type="text" id="estado" placeholder="Estado" required>
+    <button type="submit">Cadastrar</button>
+  </form>
 
-      <label>Email:</label>
-      <input type="email" name="email" required>
+  <script>
+    document.getElementById("cep").addEventListener("blur", function () {
+      const cep = this.value.replace(/\D/g, '');
+      const erroCep = document.getElementById("erroCep");
 
-      <label>Senha:</label>
-      <input type="password" name="senha" required>
+      if (!/^[0-9]{8}$/.test(cep)) {
+        erroCep.textContent = "Formato de CEP inválido.";
+        return;
+      }
 
-      <label>CEP:</label>
-      <input type="text" id="cep" name="cep" required>
+      fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.erro) {
+            erroCep.textContent = "CEP não encontrado.";
+            return;
+          }
 
-      <label>Endereço:</label>
-      <input type="text" id="endereco" name="endereco">
-
-      <label>Número:</label>
-      <input type="text" name="numero">
-
-      <label>Bairro:</label>
-      <input type="text" id="bairro" name="bairro">
-
-      <label>Cidade:</label>
-      <input type="text" id="cidade" name="cidade">
-
-      <label>Estado:</label>
-      <input type="text" id="estado" name="estado">
-
-      <button type="submit">Cadastrar</button>
-      <p id="erro"></p>
-    </form>
-  </div>
+          erroCep.textContent = "";
+          document.getElementById("endereco").value = data.logradouro;
+          document.getElementById("bairro").value = data.bairro;
+          document.getElementById("cidade").value = data.localidade;
+          document.getElementById("estado").value = data.uf;
+        })
+        .catch(() => {
+          erroCep.textContent = "Erro ao buscar CEP.";
+        });
+    });
+  </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
 </body>
 </html>
