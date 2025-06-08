@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro</title>
+  <script src="script.js" defer></script>
+  <style>
+    body {
+      background: #eef2f7;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      width: 400px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #erro {
+      margin-top: 10px;
+      color: red;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Cadastro</h1>
+    <form>
+      <label>Nome:</label>
+      <input type="text" name="nome" required>
+
+      <label>Email:</label>
+      <input type="email" name="email" required>
+
+      <label>Senha:</label>
+      <input type="password" name="senha" required>
+
+      <label>CEP:</label>
+      <input type="text" id="cep" name="cep" required>
+
+      <label>Endereço:</label>
+      <input type="text" id="endereco" name="endereco">
+
+      <label>Número:</label>
+      <input type="text" name="numero">
+
+      <label>Bairro:</label>
+      <input type="text" id="bairro" name="bairro">
+
+      <label>Cidade:</label>
+      <input type="text" id="cidade" name="cidade">
+
+      <label>Estado:</label>
+      <input type="text" id="estado" name="estado">
+
+      <button type="submit">Cadastrar</button>
+      <p id="erro"></p>
+    </form>
+  </div>
+</body>
+</html>
