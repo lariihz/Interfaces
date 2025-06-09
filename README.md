@@ -23,7 +23,4 @@ Abra os arquivos `.html` no navegador para visualizar as interfaces.
 ## Como visualizar
 Abra os arquivos `.html` no navegador.
 
----
-
 ✨
->>>>>>> d440f23 (Interface editadas e  comentadas)
