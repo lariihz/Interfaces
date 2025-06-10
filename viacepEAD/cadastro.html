@@ -8,35 +8,35 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f0f4f8;
+      background: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
       padding-top: 40px;
     }
     form {
-      background: white;
-      padding: 30px;
+      background: rgb(86, 136, 223);
+      padding: 60px;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       width: 320px;
     }
     h2 {
-      margin-bottom: 20px;
+      margin-bottom: 30px;
       text-align: center;
-      color: #000549;
+      color: #010436;
     }
     input, button {
       width: 100%;
-      padding: 10px;
+      padding: 6px;
       margin-bottom: 12px;
       border-radius: 6px;
-      border: 1px solid #ccc;
+      border: 1px solid #041d61;
       font-size: 14px;
     }
     button {
-      background-color: #01227e;
-      color: white;
+      background-color: #013369;
+      color: rgb(235, 239, 255);
       border: none;
       cursor: pointer;
     }
@@ -45,14 +45,15 @@
     }
     .erro {
       color: rgb(1, 3, 44);
-      font-size: 12px;
-      margin-bottom: 10px;
+      font-size: 3px;
+      margin-bottom: 1px;
     }
   </style>
 </head>
 <body>
+  
   <form id="cadastroForm">
-    <h2>Cadastro - Cliente 5 Estrelas</h2>
+    <h2>CADASTRO - INSTITUIÇÃO 5 ESTRELAS </h2>
     <input type="text" id="nome" placeholder="Nome" required>
     <input type="email" id="email" placeholder="Email" required>
     <input type="password" id="senha" placeholder="Senha" required>
@@ -67,6 +68,7 @@
   </form>
 
   <script>
+    // Busca de CEP (já estava certo)
     document.getElementById("cep").addEventListener("blur", function () {
       const cep = this.value.replace(/\D/g, '');
       const erroCep = document.getElementById("erroCep");
@@ -94,44 +96,40 @@
           erroCep.textContent = "Erro ao buscar CEP.";
         });
     });
+
+    // Envio de dados para o backend
+    document.getElementById("cadastroForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const dados = {
+        nome: document.getElementById("nome").value,
+        email: document.getElementById("email").value,
+        senha: document.getElementById("senha").value,
+        cep: document.getElementById("cep").value,
+        endereco: document.getElementById("endereco").value,
+        numero: document.getElementById("numero").value,
+        bairro: document.getElementById("bairro").value,
+        cidade: document.getElementById("cidade").value,
+        estado: document.getElementById("estado").value,
+      };
+
+      fetch("http://localhost:3000/cadastro", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(dados)
+      })
+      .then(res => res.text())
+      .then(msg => {
+        alert("Cadastro realizado com sucesso!");
+        // Redirecionar ou limpar form
+        // location.href = "login.html";
+      })
+      .catch(() => {
+        alert("Erro ao enviar cadastro.");
+      });
+    });
   </script>
-<!-- Code injected by live-server -->
-<script>
-	// <![CDATA[  <-- For SVG support
-	if ('WebSocket' in window) {
-		(function () {
-			function refreshCSS() {
-				var sheets = [].slice.call(document.getElementsByTagName("link"));
-				var head = document.getElementsByTagName("head")[0];
-				for (var i = 0; i < sheets.length; ++i) {
-					var elem = sheets[i];
-					var parent = elem.parentElement || head;
-					parent.removeChild(elem);
-					var rel = elem.rel;
-					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
-						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
-						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
-					}
-					parent.appendChild(elem);
-				}
-			}
-			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
-			var address = protocol + window.location.host + window.location.pathname + '/ws';
-			var socket = new WebSocket(address);
-			socket.onmessage = function (msg) {
-				if (msg.data == 'reload') window.location.reload();
-				else if (msg.data == 'refreshcss') refreshCSS();
-			};
-			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
-				console.log('Live reload enabled.');
-				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
-			}
-		})();
-	}
-	else {
-		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
-	}
-	// ]]>
-</script>
 </body>
 </html>
