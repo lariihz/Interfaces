@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-top: 40px;
+      height: 100vh;
+    }
+    form {
+      background: rgb(86, 136, 223);
+      padding: 60px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 320px;
+    }
+    h2 {
+      margin-bottom: 30px;
+      text-align: center;
+      color: #010436;
+    }
+    input, button {
+      width: 100%;
+      padding: 6px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      border: 1px solid #041d61;
+      font-size: 14px;
+    }
+    button {
+      background-color: #013369;
+      color: rgb(235, 239, 255);
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #01227e;
+    }
+    .erro {
+      color: rgb(1, 3, 44);
+      font-size: 10px;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <form id="cadastroForm">
+    <h2>CADASTRO - INSTITUIÇÃO 5 ESTRELAS </h2>
+    <input type="text" id="nome" placeholder="Nome" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="senha" placeholder="Senha" required>
+    <input type="text" id="cep" placeholder="CEP" required maxlength="8">
+    <div class="erro" id="erroCep"></div>
+    <input type="text" id="endereco" placeholder="Endereço" required>
+    <input type="text" id="numero" placeholder="Número" required>
+    <input type="text" id="bairro" placeholder="Bairro" required>
+    <input type="text" id="cidade" placeholder="Cidade" required>
+    <input type="text" id="estado" placeholder="Estado" required>
+    <button type="submit">Cadastrar</button>
+  </form>
+
+  <script>
+    // Busca de CEP
+    document.getElementById("cep").addEventListener("blur", function () {
+      const cep = this.value.replace(/\D/g, '');
+      const erroCep = document.getElementById("erroCep");
+
+      if (!/^[0-9]{8}$/.test(cep)) {
+        erroCep.textContent = "Formato de CEP inválido.";
+        return;
+      }
+
+      fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.erro) {
+            erroCep.textContent = "CEP não encontrado.";
+            return;
+          }
+
+          erroCep.textContent = "";
+          document.getElementById("endereco").value = data.logradouro || "";
+          document.getElementById("bairro").value = data.bairro || "";
+          document.getElementById("cidade").value = data.localidade || "";
+          document.getElementById("estado").value = data.uf || "";
+        })
+        .catch(() => {
+          erroCep.textContent = "Erro ao buscar CEP.";
+        });
+    });
+
+    // Envio de dados para o backend
+    document.getElementById("cadastroForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const dados = {
+        nome: document.getElementById("nome").value,
+        email: document.getElementById("email").value,
+        senha: document.getElementById("senha").value,
+        cep: document.getElementById("cep").value,
+        endereco: document.getElementById("endereco").value,
+        numero: document.getElementById("numero").value,
+        bairro: document.getElementById("bairro").value,
+        cidade: document.getElementById("cidade").value,
+        estado: document.getElementById("estado").value,
+      };
+
+      fetch("http://localhost:3000/funcionarios", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(dados)
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Erro no cadastro");
+        return res.json();
+      })
+      .then(data => {
+        alert(data.mensagem);
+        // Limpar formulário após cadastro
+        document.getElementById("cadastroForm").reset();
+      })
+      .catch(() => {
+        alert("Erro ao enviar cadastro.");
+      });
+    });
+  </script>
+</body>
+</html>

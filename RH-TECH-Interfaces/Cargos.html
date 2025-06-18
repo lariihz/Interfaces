@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gestão de Cargos - RH-Tech</title>
+  <style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+
+  /* Link fixo no canto superior esquerdo */
+  a.voltar {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background-color: #013369;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 1000;
+  }
+
+  a.voltar:hover {
+    background-color: #01227e;
+  }
+
+  form {
+    background: rgb(86, 136, 223);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 40px;
+  }
+
+  h1 {
+    margin-top: 0;
+    color: #010436;
+  }
+
+  h2 {
+    margin-bottom: 30px;
+    text-align: center;
+    color: #010436;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 12px;
+    color: #010436;
+    font-weight: bold;
+  }
+
+  input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 4px;
+    border-radius: 6px;
+    border: 1px solid #041d61;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    background-color: #013369;
+    color: rgb(235, 239, 255);
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #01227e;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 900px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  th, td {
+    border: 1px solid #0003a7;
+    padding: 10px;
+    text-align: left;
+  }
+
+  th {
+    background: #0057a3;
+    color: white;
+  }
+
+  .erro {
+    color: rgb(1, 3, 44);
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 10px;
+  }
+
+  .button-group button {
+    flex: 1;
+    width: auto;
+  }
+
+  /* Cursor pointer para botões na tabela */
+  table button {
+    cursor: pointer;
+  }
+  </style>
+</head>
+<body>
+  <a href="PaginaInicial.html" class="voltar">← Voltar para Página Inicial</a>
+
+  <h1>GESTÃO DE CARGOS - SAF</h1>
+
+  <form id="formCargo">
+    <input type="hidden" id="idCargo" />
+    <label for="nomeCargo">
+      Cargo Atuante:
+      <input type="text" id="nomeCargo" required />
+    </label>
+    <label for="descricaoCargo">
+      Nome completo:
+      <textarea id="descricaoCargo" rows="3"></textarea>
+    </label>
+    <button type="submit" id="btnSalvar">Salvar</button>
+    <button type="button" id="btnCancelar" style="display:none;">Cancelar</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Cargo</th>
+        <th>Nome</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaCargos"></tbody>
+  </table>
+
+  <script>
+    const urlBase = "http://localhost:8080/cargos";
+
+    // Seleciona elementos
+    const form = document.getElementById("formCargo");
+    const idInput = document.getElementById("idCargo");
+    const nomeInput = document.getElementById("nomeCargo");
+    const descricaoInput = document.getElementById("descricaoCargo");
+    const tabela = document.getElementById("tabelaCargos");
+    const btnCancelar = document.getElementById("btnCancelar");
+    const btnSalvar = document.getElementById("btnSalvar");
+
+    // Função para carregar todos cargos e atualizar tabela
+    async function carregarCargos() {
+      try {
+        const res = await fetch(urlBase);
+        if (!res.ok) throw new Error("Erro ao carregar cargos");
+        const dados = await res.json();
+
+        tabela.innerHTML = "";
+
+        dados.forEach(cargo => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${cargo.id}</td>
+            <td>${cargo.nome}</td>
+            <td>${cargo.descricao || ''}</td>
+            <td>
+              <button aria-label="Editar cargo ${cargo.nome}" onclick="editarCargo(${cargo.id})">Editar</button>
+              <button aria-label="Excluir cargo ${cargo.nome}" onclick="excluirCargo(${cargo.id})">Excluir</button>
+            </td>
+          `;
+          tabela.appendChild(tr);
+        });
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    // Enviar formulário - cria ou atualiza cargo
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const id = idInput.value;
+      const dados = {
+        nome: nomeInput.value.trim(),
+        descricao: descricaoInput.value.trim()
+      };
+
+      if (!dados.nome) {
+        alert("O nome do cargo é obrigatório.");
+        return;
+      }
+
+      btnSalvar.disabled = true; // desabilita botão para evitar cliques múltiplos
+
+      try {
+        let res;
+        if (id) {
+          // Atualiza
+          res = await fetch(`${urlBase}/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados)
+          });
+        } else {
+          // Cria novo
+          res = await fetch(urlBase, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados)
+          });
+        }
+
+        if (!res.ok) throw new Errorgbr("Falha ao salvar o cargo");
+
+        alert(id ? "Cargo atualizado com sucesso!" : "Cargo criado com sucesso!");
+
+        form.reset();
+        idInput.value = ""; // limpa id escondido
+        btnCancelar.style.display = "none";
+
+        carregarCargos();
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        btnSalvar.disabled = false;
+      }
+    });
+
+    // Editar cargo - preenche o form
+    async function editarCargo(id) {
+      try {
+        const res = await fetch(`${urlBase}/${id}`);
+        if (!res.ok) {
+          alert("Cargo não encontrado.");
+          return;
+        }
+        const cargo = await res.json();
+        idInput.value = cargo.id;
+        nomeInput.value = cargo.nome;
+        descricaoInput.value = cargo.descricao || "";
+        btnCancelar.style.display = "inline-block";
+      } catch {
+        alert("Erro ao buscar cargo.");
+      }
+    }
+
+    // Cancelar edição
+    btnCancelar.addEventListener("click", (e) => {
+      e.preventDefault();
+      form.reset();
+      idInput.value = "";
+      btnCancelar.style.display = "none";
+    });
+
+    // Excluir cargo com confirmação
+    async function excluirCargo(id) {
+      if (confirm("Confirma exclusão deste cargo?")) {
+        try {
+          const res = await fetch(`${urlBase}/${id}`, { method: "DELETE" });
+          if (!res.ok) throw new Error("Erro ao excluir cargo");
+          alert("Cargo excluído!");
+          carregarCargos();
+        } catch {
+          alert("Erro ao excluir cargo.");
+        }
+      }
+    }
+
+    // Torna as funções globais para poderem ser chamadas nos botões
+    window.editarCargo = editarCargo;
+    window.excluirCargo = excluirCargo;
+
+    // Carregar cargos assim que abrir a página
+    carregarCargos();
+  </script>
+</body>
+</html>

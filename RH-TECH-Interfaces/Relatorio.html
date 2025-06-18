@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cadastro de Vínculo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    a.voltar {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background-color: #013164;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 1000;
+      transition: background-color 0.3s ease;
+    }
+
+    a.voltar:hover {
+      background-color: #013164;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    form {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(141, 7, 7, 0.1);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    select, input[type="date"], textarea {
+      width: 100%;
+      padding: 8px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    button {
+      background-color: #013164;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover:enabled {
+      background-color: #013164;
+    }
+
+    button:disabled {
+      background-color: #a0a0a0;
+      cursor: not-allowed;
+    }
+
+    #mensagem {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <a href="PaginaInicial.html" class="voltar">← Voltar para Página Inicial</a>
+
+  <h1>Cadastro de Vínculo</h1>
+
+  <form id="formVinculo">
+    <div>
+      <label for="selectFuncionario">Funcionário</label>
+      <select id="selectFuncionario" required>
+        <option value="">-- Selecione Funcionário --</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="selectCargo">Cargo</label>
+      <select id="selectCargo" required>
+        <option value="">-- Selecione Cargo --</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="dataInicio">Data de Início</label>
+      <input type="date" id="dataInicio" required />
+    </div>
+
+    <div>
+      <label for="dataFim">Data de Fim (opcional)</label>
+      <input type="date" id="dataFim" />
+    </div>
+
+    <div>
+      <label for="detalhes">Detalhes</label>
+      <textarea id="detalhes" placeholder="Descreva detalhes..."></textarea>
+    </div>
+
+    <button type="submit">Salvar</button>
+  </form>
+
+  <div id="mensagem"></div>
+
+  <script>
+    const selectFuncionario = document.getElementById('selectFuncionario');
+    const selectCargo = document.getElementById('selectCargo');
+    const formVinculo = document.getElementById('formVinculo');
+    const mensagem = document.getElementById('mensagem');
+
+    function mostrarMensagem(texto, tipo = 'erro') {
+      mensagem.textContent = texto;
+      mensagem.style.color = tipo === 'erro' ? 'red' : 'green';
+    }
+
+    async function carregarFuncionarios() {
+      try {
+        const res = await fetch('http://localhost:8080/funcionarios');
+        if (!res.ok) throw new Error('Erro ao carregar funcionários');
+        const funcionarios = await res.json();
+        funcionarios.forEach(f => {
+          const option = document.createElement('option');
+          option.value = f.id;
+          option.textContent = f.nome;
+          selectFuncionario.appendChild(option);
+        });
+      } catch {
+        mostrarMensagem('Erro ao carregar funcionários.');
+      }
+    }
+
+    async function carregarCargos() {
+      try {
+        const res = await fetch('http://localhost:8080/cargos');
+        if (!res.ok) throw new Error('Erro ao carregar cargos');
+        const cargos = await res.json();
+        cargos.forEach(c => {
+          const option = document.createElement('option');
+          option.value = c.id;
+          option.textContent = c.nome;
+          selectCargo.appendChild(option);
+        });
+      } catch {
+        mostrarMensagem('Erro ao carregar cargos.');
+      }
+    }
+
+    formVinculo.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      mostrarMensagem('');
+
+      const funcionarioId = selectFuncionario.value;
+      const cargoId = selectCargo.value;
+      const dataInicio = document.getElementById('dataInicio').value;
+      const dataFim = document.getElementById('dataFim').value;
+      const detalhes = document.getElementById('detalhes').value;
+
+      if (!funcionarioId || !cargoId || !dataInicio) {
+        mostrarMensagem('Preencha os campos obrigatórios.');
+        return;
+      }
+
+      if (dataFim && dataFim < dataInicio) {
+        mostrarMensagem('Data de fim não pode ser anterior à data de início.');
+        return;
+      }
+
+      const vinculo = {
+        funcionario: { id: parseInt(funcionarioId) },
+        cargo: { id: parseInt(cargoId) },
+        dataInicio,
+        dataFim: dataFim || null,
+        detalhes: detalhes || ''
+      };
+
+      const botaoSalvar = formVinculo.querySelector('button[type="submit"]');
+      botaoSalvar.disabled = true;
+
+      try {
+        const res = await fetch('http://localhost:8080/funcionarios-por-cargo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(vinculo)
+        });
+
+        if (!res.ok) {
+          let erroMsg = 'Erro ao salvar vínculo.';
+          try {
+            const erroData = await res.json();
+            erroMsg = erroData.message || erroMsg;
+          } catch {}
+          throw new Error(erroMsg);
+        }
+
+        mostrarMensagem('Vínculo salvo com sucesso!', 'sucesso');
+        formVinculo.reset();
+      } catch (error) {
+        mostrarMensagem(error.message);
+      } finally {
+        botaoSalvar.disabled = false;
+      }
+    });
+
+    // Inicializa selects ao carregar página
+    carregarFuncionarios();
+    carregarCargos();
+  </script>
+</body>
+</html>
